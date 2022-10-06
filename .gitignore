@@ -3,3 +3,7 @@
 **/*.so
 **/*.a
 lib
+tests/obj
+tests/obj/*.o
+tests/bin
+tests/bin/tests

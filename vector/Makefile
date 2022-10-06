@@ -15,7 +15,7 @@ LIBINCDIR=../lib/include
 LIBINC=$(LIBINCDIR)/$(HEADER)
 
 
-.PHONY : lib clean
+.PHONY: lib clean test all
 
 
 lib: $(LIB) $(LIBINC)

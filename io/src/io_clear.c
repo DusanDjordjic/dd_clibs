@@ -4,6 +4,5 @@
 
 void io_clear_buffer()
 {
-    while(fgetc(stdin) != '\n');
+    while (fgetc(stdin) != '\n') { };
 }
-
