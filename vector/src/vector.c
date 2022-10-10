@@ -26,10 +26,12 @@ void vector_destroy(Vector* vec, void (*element_destroy)(void*))
 {
     VECTOR_CHECK_ELEMENTS_NULL();
 
-    void** it;
-    for (unsigned int i = 0; i < vec->logical_length; i++) {
-        it = (void**)(((char*)vec->elements) + i * vec->element_size);
-        element_destroy(*it);
+    if (element_destroy != NULL) {
+        void** it;
+        for (unsigned int i = 0; i < vec->logical_length; i++) {
+            it = (void**)(((char*)vec->elements) + i * vec->element_size);
+            element_destroy(*it);
+        }
     }
 
     free(vec->elements);

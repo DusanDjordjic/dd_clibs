@@ -1,13 +1,11 @@
 CC=gcc
-CFLAGS=-Wall -Wextra -O2
+CFLAGS=-Wall -Wextra -Werror -std=c99 -pedantic -O2
 
 SRC=src
 OBJ=obj
 SRCS=$(wildcard $(SRC)/*.c)
 OBJS=$(patsubst $(SRC)/%.c, $(OBJ)/%.o, $(SRCS))
 HEADER=vector.h
-
-VECTOR_STEP=-DVECTOR_STEP=16
 
 LIBDIR=../lib
 LIB=$(LIBDIR)/libddvector.a
@@ -27,10 +25,10 @@ $(LIBINC): $(LIBINCDIR) $(SRC)/$(HEADER)
 	cp $(SRC)/$(HEADER) $(LIBINCDIR)/$(HEADER)
 
 $(OBJ)/%.o: $(SRC)/%.c $(SRC)/%.h
-	$(CC) -c $< -o $@ $(CFLAGS) $(VECTOR_STEP)
+	$(CC) -c $< -o $@ $(CFLAGS)
 
 $(OBJ)/%.o: $(SRC)/%.c
-	$(CC) -c $< -o $@ $(CFLAGS) $(VECTOR_STEP)
+	$(CC) -c $< -o $@ $(CFLAGS)
 
 $(OBJ):
 	mkdir $@

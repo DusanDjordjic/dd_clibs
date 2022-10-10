@@ -1,7 +1,7 @@
 # Compiler 
 
 CC=gcc
-TESTFLAGS=-Wall -Wextra -g
+TESTFLAGS=-Wall -Wextra -Werror -std=c99 -pedantic -g
 
 # Libraries
 
@@ -18,13 +18,9 @@ LIBIO_H=$(LIBINC)/io.h
 
 TESTDIR=tests
 TESTDIR_SRC=$(TESTDIR)/src
-TESTDIR_OBJ=$(TESTDIR)/obj
 TESTDIR_BIN=$(TESTDIR)/bin
-
 TESTFILES_SRC=$(wildcard $(TESTDIR_SRC)/*.c)
-TESTFILES_OBJ=$(patsubst $(TESTDIR_SRC)/%.c, $(TESTDIR_OBJ)/%.o, $(TESTFILES_SRC)) 
-
-TESTBIN=$(TESTDIR_BIN)/tests
+TESTFILES_BIN=$(patsubst $(TESTDIR_SRC)/%.c, $(TESTDIR_BIN)/%, $(TESTFILES_SRC));
 
 .PHONY: libs clean test all
 
@@ -51,14 +47,14 @@ $(TESTDIR_OBJ):
 $(TESTDIR_BIN):
 	mkdir $@
 
-test: clean $(LIBDIR) $(LIBINC) $(LIBVEC) $(LIBIO) $(TESTBIN)
-	./$(TESTBIN)
+printt:
+	echo $(TESTFILES_BIN)
 
-$(TESTBIN):  $(TESTFILES_OBJ) $(TESTDIR_BIN)
-	$(CC) -o $@ $< $(TESTFLAGS) -L$(LIBDIR) -lddvector -lddio -I$(LIBINC)
+test: clean $(LIBDIR) $(LIBINC) $(LIBVEC) $(LIBIO) $(TESTFILES_BIN)
+	for test in $(TESTFILES_BIN) do ./$$test ; done
 
-$(TESTDIR_OBJ)/%.o:  $(TESTDIR_SRC)/%.c $(TESTDIR_OBJ)
-	$(CC) -c $< -o $@ $(TESTFLAGS)
+$(TESTDIR_BIN)/%: $(TESTDIR_SRC)/%.c
+	$(CC) -o $@ $< $(TESTFLAGS) -L$(LIBDIR) -lddvector -lddio -lcriterion -I$(LIBINC)
 
 clean:
 	rm -rf $(LIBDIR)/*.a $(LIBINC)/*.h $(TESTDIR_OBJ)/*.o $(TESTDIR_BIN)/*;\
