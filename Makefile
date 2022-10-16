@@ -47,9 +47,6 @@ $(TESTDIR_OBJ):
 $(TESTDIR_BIN):
 	mkdir $@
 
-printt:
-	echo $(TESTFILES_BIN)
-
 test: clean $(LIBDIR) $(LIBINC) $(LIBVEC) $(LIBIO) $(TESTFILES_BIN)
 	for test in $(TESTFILES_BIN) do ./$$test ; done
 

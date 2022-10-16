@@ -1,4 +1,5 @@
 #include "vector.h"
+#include <stdlib.h>
 
 void** vector_end(const Vector* vec)
 {
@@ -11,6 +12,18 @@ void** vector_start(const Vector* vec)
 {
     VECTOR_CHECK_ELEMENTS_NULL(NULL);
     return vec->elements;
+}
+
+void** vector_at(const Vector* vec, unsigned int index)
+{
+    VECTOR_CHECK_ELEMENTS_NULL(NULL);
+
+#ifdef VECTOR_DEBUG
+    if (index >= vec->logical_length)
+        return NULL;
+#endif
+
+    return (void**)((char*)vec->elements + vec->element_size * index);
 }
 
 unsigned int vector_size(const Vector* vec)

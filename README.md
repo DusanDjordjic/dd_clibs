@@ -24,7 +24,8 @@ Every library is it's own folder. They are build individualy and used individual
 ## Todos 
 - [ ] *all* : add dynamic library build support.
 - [ ] *all* : add testing library and make tests.
-- [ ] *vector-c* : add *get* function that gets item at some index.
+- [X] *vector-c* : add *get* function that gets an item at some index.
+- [X] *vector-c* : add *replace* function that replaces as item at some index.
 - [ ] *vector-c* : add *shift* and *unshift* functions.
 - [ ] *io-c* : add functions for writing.
 - [ ] *io-c* : add *FILE\* stream* parameter so the user can specify the io stream.

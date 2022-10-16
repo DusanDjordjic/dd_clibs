@@ -16,7 +16,7 @@ int partition(void* elements, int element_size, int low_index, int high_index, c
     for (int j = low_index; j <= high_index; j++) {
         if (cmpfn((char*)elements + j * element_size, pivot) > 0) {
             i++;
-            void* tmp = (char*)elements + i * element_size;
+            // void* tmp = (char*)elements + i * element_size;
         }
     }
 

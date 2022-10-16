@@ -52,12 +52,19 @@ void* vector_pop(Vector* vec)
     return *vector_end(vec);
 }
 
-void* vector_at(const Vector* vec, unsigned int index)
+void** vector_replace(const Vector* vec, unsigned int index, void* element, void (*element_destroy)(void*))
 {
     VECTOR_CHECK_ELEMENTS_NULL(NULL);
 
-    if (index >= vec->logical_length)
+    void** el = vector_at(vec, index);
+    if (el == NULL)
         return NULL;
 
-    return *(void**)((char*)vec->elements + vec->element_size * index);
+    if (element_destroy != NULL) {
+        element_destroy(*el);
+    }
+
+    *el = element;
+
+    return el;
 }
