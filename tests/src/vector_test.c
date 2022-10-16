@@ -118,18 +118,30 @@ Test(vector, replace)
 
     vector_destroy(&vec, NULL);
 }
-
+int int_cmp(const void* p1, const void* p2)
+{
+    int n1 = **(int**)p1;
+    int n2 = **(int**)p2;
+    return n2 - n1;
+}
 Test(vector, sort)
 {
     Vector vec;
     vector_create(&vec, sizeof(int*));
 
-    int arr[] = { 3, 8, 7, 1, 0, 5, 4, 2, 9 };
-    // int arr_sorted[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+    int arr[] = { 3, 8, 1, 9, 9, 3, 7, 4, 8, 7, 1, 6, 5, 4, 2, 9 };
+    int arr_sorted[] = { 1, 1, 2, 3, 3, 4, 4, 5, 6, 7, 7, 8, 8, 9, 9, 9 };
 
     unsigned int n = sizeof(arr) / sizeof(int);
 
     for (unsigned int i = 0; i < n; i++) {
         vector_push(&vec, arr + i);
+    }
+
+    vector_sort(&vec, int_cmp);
+
+    for (unsigned int i = 0; i < n; i++) {
+        int n = **(int**)vector_at(&vec, i);
+        cr_expect(n == arr_sorted[i], "Expected %d to be %d", n, arr_sorted[i]);
     }
 }

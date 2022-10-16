@@ -2,7 +2,7 @@
 #define _VECTOR_H_
 
 #ifndef VECTOR_STEP
-#define VECTOR_STEP 8
+#define VECTOR_STEP 16
 #endif
 
 #ifdef VECTOR_DEBUG
@@ -22,14 +22,19 @@ typedef struct {
     void* elements;
 } Vector;
 
+// Basic
 void vector_create(Vector* vec, unsigned int element_size);
 void vector_destroy(Vector* vec, void (*element_destroy)(void*));
 void vector_push(Vector* vec, void* element);
 void* vector_pop(Vector* vec);
-void** vector_at(const Vector* vec, unsigned int index);
+
+// Advanced
 void** vector_replace(const Vector* vec, unsigned int index, void* element, void (*element_destroy)(void*));
-void vector_qsort(Vector* vec, int (*element_compare)(const void*, const void*));
+void vector_sort(Vector* vec, int (*element_compare)(const void*, const void*));
+
+// Utils
 void vector_print(const Vector* vec, void (*element_print)(const void*));
+void** vector_at(const Vector* vec, unsigned int index);
 void** vector_start(const Vector* vec);
 void** vector_end(const Vector* vec);
 unsigned int vector_capacity(const Vector* vec);
