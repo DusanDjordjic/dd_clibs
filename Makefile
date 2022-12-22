@@ -26,11 +26,15 @@ TESTFILES_BIN=$(patsubst $(TESTDIR_SRC)/%.c, $(TESTDIR_BIN)/%, $(TESTFILES_SRC))
 
 libs: $(LIBDIR) $(LIBINC) $(LIBVEC) $(LIBIO) 
 
+# Execute nested Makefiles
+
 $(LIBVEC):
 	$(MAKE) -C vector lib 
 
 $(LIBIO):
 	$(MAKE) -C io lib 
+
+# Rules for making folders 
 
 $(LIBDIR):
 	mkdir $@
@@ -47,13 +51,19 @@ $(TESTDIR_OBJ):
 $(TESTDIR_BIN):
 	mkdir $@
 
+# Rules for tests
+# Firts clean and than build everything again
+# And run all of the tests
+
 test: clean $(LIBDIR) $(LIBINC) $(LIBVEC) $(LIBIO) $(TESTFILES_BIN)
 	for test in $(TESTFILES_BIN) do ./$$test ; done
 
 $(TESTDIR_BIN)/%: $(TESTDIR_SRC)/%.c
 	$(CC) -o $@ $< $(TESTFLAGS) -L$(LIBDIR) -lddvector -lddio -lcriterion -I$(LIBINC)
 
+# Others
+
 clean:
-	rm -rf $(LIBDIR)/*.a $(LIBINC)/*.h $(TESTDIR_OBJ)/*.o $(TESTDIR_BIN)/*;\
+	rm -rf $(LIBDIR)/*.a $(LIBDIR)/*.so $(LIBINC)/*.h $(TESTDIR_OBJ)/*.o $(TESTDIR_BIN)/*;\
 	$(MAKE) -C io clean;\
 	$(MAKE) -C vector clean

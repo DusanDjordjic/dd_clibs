@@ -57,11 +57,16 @@ void** vector_replace(const Vector* vec, unsigned int index, void* element, void
     VECTOR_CHECK_ELEMENTS_NULL(NULL);
 
     void** el = vector_at(vec, index);
-    if (el == NULL)
-        return NULL;
+    // There is no element at given index
+    // So we'll just insert it
+    if (*el == NULL) {
+        *el = element;
+        return el;
+    }
 
     if (element_destroy != NULL) {
         element_destroy(*el);
+        return NULL;
     }
 
     *el = element;
