@@ -22,10 +22,12 @@ Every library is in it's own folder. They are build individualy and used individ
 | **io-c**     | Set of function for reading and writing from and to streams         | Development   |
 
 ## Todos 
-- [x] *all* : add dynamic library build support.
+- [X] *all* : add dynamic library build support.
 - [ ] *all* : add testing library and make tests.
 - [X] *vector-c* : add *get* function that gets an item at some index.
 - [X] *vector-c* : add *replace* function that replaces as item at some index.
+- [ ] *vector-c* : add better error codes to some functions or use errno
+- [ ] *vector-c* : vector can now hold only pointers. Make it so it can hold any type
 - [ ] *vector-c* : add *shift* and *unshift* functions.
 - [ ] *io-c* : add functions for writing.
 - [ ] *io-c* : add *FILE\* stream* parameter so the user can specify the io stream.

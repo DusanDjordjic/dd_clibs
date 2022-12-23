@@ -11,15 +11,15 @@ void vector_create(Vector* vec, unsigned int element_size)
     vec->elements = malloc(vec->actual_length * element_size);
 }
 
-void vector_destroy(Vector* vec, void (*element_destroy)(void*))
+void vector_destroy(Vector* vec, freefn element_free)
 {
     VECTOR_CHECK_ELEMENTS_NULL();
 
-    if (element_destroy != NULL) {
+    if (element_free != NULL) {
         void** it;
         for (unsigned int i = 0; i < vec->logical_length; i++) {
             it = (void**)(((char*)vec->elements) + i * vec->element_size);
-            element_destroy(*it);
+            element_free(*it);
         }
     }
 
@@ -52,11 +52,17 @@ void* vector_pop(Vector* vec)
     return *vector_end(vec);
 }
 
-void** vector_replace(const Vector* vec, unsigned int index, void* element, void (*element_destroy)(void*))
+void** vector_replace(const Vector* vec, const unsigned int index, void* element, freefn element_free)
 {
     VECTOR_CHECK_ELEMENTS_NULL(NULL);
 
     void** el = vector_at(vec, index);
+
+#ifdef DEBUG
+    if (el == NULL) {
+        return NULL;
+    }
+#endif
     // There is no element at given index
     // So we'll just insert it
     if (*el == NULL) {
@@ -64,8 +70,8 @@ void** vector_replace(const Vector* vec, unsigned int index, void* element, void
         return el;
     }
 
-    if (element_destroy != NULL) {
-        element_destroy(*el);
+    if (element_free != NULL) {
+        element_free(*el);
         return NULL;
     }
 

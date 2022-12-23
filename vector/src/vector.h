@@ -16,6 +16,8 @@
 #endif
 
 typedef int (*comparefn)(const void*, const void*);
+typedef void (*freefn)(void*);
+typedef void (*printfn)(const void*);
 
 typedef struct {
     unsigned int element_size;
@@ -26,17 +28,17 @@ typedef struct {
 
 // Basic
 void vector_create(Vector* vec, unsigned int element_size);
-void vector_destroy(Vector* vec, void (*element_destroy)(void*));
+void vector_destroy(Vector* vec, freefn);
 void vector_push(Vector* vec, void* element);
 void* vector_pop(Vector* vec);
 
 // Advanced
-void** vector_replace(const Vector* vec, unsigned int index, void* element, void (*element_destroy)(void*));
+void** vector_replace(const Vector* vec, const unsigned int index, void* element, freefn);
 void vector_sort(Vector* vec, comparefn cmpfn);
 
 // Utils
-void vector_print(const Vector* vec, void (*element_print)(const void*));
-void** vector_at(const Vector* vec, unsigned int index);
+void vector_print(const Vector* vec, printfn);
+void** vector_at(const Vector* vec, const unsigned int index);
 void** vector_start(const Vector* vec);
 void** vector_end(const Vector* vec);
 unsigned int vector_capacity(const Vector* vec);
