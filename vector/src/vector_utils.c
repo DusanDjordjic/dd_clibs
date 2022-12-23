@@ -18,7 +18,7 @@ void** vector_at(const Vector* vec, unsigned int index)
 {
     VECTOR_CHECK_ELEMENTS_NULL(NULL);
 
-#ifdef VECTOR_DEBUG
+#ifdef DEBUG
     if (index >= vec->logical_length)
         return NULL;
 #endif

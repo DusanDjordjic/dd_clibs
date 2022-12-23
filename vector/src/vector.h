@@ -5,7 +5,7 @@
 #define VECTOR_STEP 16
 #endif
 
-#ifdef VECTOR_DEBUG
+#ifdef DEBUG
 #define VECTOR_CHECK_ELEMENTS_NULL(x)                                                        \
     if (vec->elements == NULL) {                                                             \
         printf("%sError in %s on line %d\n%s", "\033[1;31m", __FILE__, __LINE__, "\033[0m"); \
@@ -14,6 +14,8 @@
 #else
 #define VECTOR_CHECK_ELEMENTS_NULL(x)
 #endif
+
+typedef int (*comparefn)(const void*, const void*);
 
 typedef struct {
     unsigned int element_size;
@@ -30,7 +32,7 @@ void* vector_pop(Vector* vec);
 
 // Advanced
 void** vector_replace(const Vector* vec, unsigned int index, void* element, void (*element_destroy)(void*));
-void vector_sort(Vector* vec, int (*element_compare)(const void*, const void*));
+void vector_sort(Vector* vec, comparefn cmpfn);
 
 // Utils
 void vector_print(const Vector* vec, void (*element_print)(const void*));
