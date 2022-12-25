@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-static int partition(void* elements, const int element_size, const int low_index, const int high_index, comparefn cmpfn)
+static int partition(void* elements, const size_t element_size, const int low_index, const int high_index, comparefn cmpfn)
 {
     void* pivot = (char*)elements + high_index * element_size;
 
@@ -43,11 +43,13 @@ static void quick_sort(void* elements, int element_size, int low_index, int high
     }
 }
 
-void vector_sort(Vector* vec, comparefn cmpfn)
+int vector_sort(Vector* vec, comparefn cmpfn)
 {
-    VECTOR_CHECK_ELEMENTS_NULL(NULL);
+    VECTOR_CHECK_ELEMENTS_NULL(1);
 
-    int high_index = vector_size(vec) - 1;
+    int high_index = vector_length(vec) - 1;
     int low_index = 0;
     quick_sort(vec->elements, vec->element_size, low_index, high_index, cmpfn);
+
+    return 0;
 }

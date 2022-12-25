@@ -1,6 +1,6 @@
 #ifndef _VECTOR_H_
 #define _VECTOR_H_
-
+#include <stdlib.h>
 #ifndef VECTOR_STEP
 #define VECTOR_STEP 16
 #endif
@@ -20,28 +20,28 @@ typedef void (*freefn)(void*);
 typedef void (*printfn)(const void*);
 
 typedef struct {
-    unsigned int element_size;
-    unsigned int actual_length;
-    unsigned int logical_length;
+    size_t element_size;
+    size_t capacity;
+    size_t length;
     void* elements;
 } Vector;
 
 // Basic
-void vector_create(Vector* vec, unsigned int element_size);
-void vector_destroy(Vector* vec, freefn);
-void vector_push(Vector* vec, void* element);
+int vector_init(Vector* vec, size_t element_size);
+int vector_destroy(Vector* vec, freefn);
+int vector_push(Vector* vec, const void* element);
 void* vector_pop(Vector* vec);
 
 // Advanced
-void** vector_replace(const Vector* vec, const unsigned int index, void* element, freefn);
-void vector_sort(Vector* vec, comparefn cmpfn);
+void* vector_replace(Vector* vec, const size_t index, const void* element, freefn);
+int vector_sort(Vector* vec, comparefn cmpfn);
 
 // Utils
-void vector_print(const Vector* vec, printfn);
-void** vector_at(const Vector* vec, const unsigned int index);
-void** vector_start(const Vector* vec);
-void** vector_end(const Vector* vec);
-unsigned int vector_capacity(const Vector* vec);
-unsigned int vector_size(const Vector* vec);
+int vector_print(const Vector* vec, printfn);
+void* vector_at(const Vector* vec, const size_t index);
+void* vector_start(const Vector* vec);
+void* vector_end(const Vector* vec);
+size_t vector_capacity(const Vector* vec);
+size_t vector_length(const Vector* vec);
 
 #endif

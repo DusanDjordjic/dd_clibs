@@ -2,80 +2,100 @@
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
-void vector_create(Vector* vec, unsigned int element_size)
+int vector_init(Vector* vec, const size_t element_size)
 {
     vec->element_size = element_size;
-    vec->actual_length = VECTOR_STEP;
-    vec->logical_length = 0;
-    vec->elements = malloc(vec->actual_length * element_size);
+    vec->capacity = VECTOR_STEP;
+    vec->length = 0;
+    vec->elements = malloc(vec->capacity * element_size);
+    if (vec->elements == NULL) {
+        return 1;
+    }
+
+    return 0;
 }
 
-void vector_destroy(Vector* vec, freefn element_free)
+int vector_destroy(Vector* vec, freefn element_free)
 {
-    VECTOR_CHECK_ELEMENTS_NULL();
+    VECTOR_CHECK_ELEMENTS_NULL(1);
 
     if (element_free != NULL) {
-        void** it;
-        for (unsigned int i = 0; i < vec->logical_length; i++) {
-            it = (void**)(((char*)vec->elements) + i * vec->element_size);
-            element_free(*it);
+        for (size_t i = 0; i < vec->length; i++) {
+            element_free(vector_at(vec, i));
         }
     }
 
     free(vec->elements);
     vec->elements = NULL;
-    vec->actual_length = 0;
-    vec->logical_length = 0;
+    vec->capacity = 0;
+    vec->length = 0;
     vec->element_size = 0;
+
+    return 0;
 }
 
-void vector_push(Vector* vec, void* element)
+int vector_push(Vector* vec, const void* element)
 {
-    VECTOR_CHECK_ELEMENTS_NULL();
-
-    if (vec->logical_length == vec->actual_length) {
-        vec->actual_length += VECTOR_STEP;
-        vec->elements = realloc(vec->elements, vec->actual_length * vec->element_size);
-        assert(vec->elements != NULL);
+    VECTOR_CHECK_ELEMENTS_NULL(1);
+    if (element == NULL) {
+        return 2;
     }
 
-    *vector_end(vec) = element;
-    vec->logical_length++;
+    if (vec->length == vec->capacity) {
+        vec->capacity += VECTOR_STEP;
+        void* new_elements = realloc(vec->elements, vec->capacity * vec->element_size);
+        if (new_elements == NULL) {
+            return 3;
+        }
+        vec->elements = new_elements;
+    }
+
+    memcpy(vector_end(vec), element, vec->element_size);
+    vec->length += 1;
+
+    return 0;
 }
 
 void* vector_pop(Vector* vec)
 {
+    // TODO: Better error codes
     VECTOR_CHECK_ELEMENTS_NULL(NULL);
 
-    vec->logical_length--;
-    return *vector_end(vec);
+    vec->length -= 1;
+    return vector_end(vec);
 }
 
-void** vector_replace(const Vector* vec, const unsigned int index, void* element, freefn element_free)
+void* vector_replace(Vector* vec, const size_t index, const void* element, freefn element_free)
 {
+    // TODO: Better error codes
     VECTOR_CHECK_ELEMENTS_NULL(NULL);
-
-    void** el = vector_at(vec, index);
-
-#ifdef DEBUG
-    if (el == NULL) {
+    if (element == NULL) {
         return NULL;
     }
-#endif
+
+    // Index out of bounds
+    if (vec->capacity <= index) {
+        return NULL;
+    }
+
+    void* el = vector_at(vec, index);
+
     // There is no element at given index
     // So we'll just insert it
-    if (*el == NULL) {
-        *el = element;
+
+    if (vec->length >= index) {
+        memcpy(el, element, vec->element_size);
         return el;
     }
 
+    // If element_free func is provided use it to
+    // free existing element at 'index'
     if (element_free != NULL) {
-        element_free(*el);
-        return NULL;
+        element_free(el);
     }
 
-    *el = element;
-
+    memcpy(el, element, vec->element_size);
     return el;
 }

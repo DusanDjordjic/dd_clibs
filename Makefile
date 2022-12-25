@@ -8,10 +8,10 @@ TESTFLAGS=-Wall -Wextra -Werror -std=c99 -pedantic -g
 LIBDIR=lib
 LIBINC=lib/include
 
-LIBVEC=$(LIBDIR)/libddvector.a
+LIBVEC=$(LIBDIR)/libddvector.a $(LIBDIR)/libddvector.so
 LIBVEC_H=$(LIBINC)/vector.h
 
-LIBIO=$(LIBDIR)/libddio.a
+LIBIO=$(LIBDIR)/libddio.a $(LIBDIR)/libddio.so
 LIBIO_H=$(LIBINC)/io.h
 
 # Tests
@@ -22,9 +22,9 @@ TESTDIR_BIN=$(TESTDIR)/bin
 TESTFILES_SRC=$(wildcard $(TESTDIR_SRC)/*.c)
 TESTFILES_BIN=$(patsubst $(TESTDIR_SRC)/%.c, $(TESTDIR_BIN)/%, $(TESTFILES_SRC));
 
-.PHONY: libs clean test all
+.PHONY: all clean test
 
-libs: $(LIBDIR) $(LIBINC) $(LIBVEC) $(LIBIO) 
+all: $(LIBDIR) $(LIBINC) $(LIBVEC) $(LIBIO) 
 
 # Execute nested Makefiles
 
@@ -56,7 +56,7 @@ $(TESTDIR_BIN):
 # And run all of the tests
 
 test: clean $(LIBDIR) $(LIBINC) $(LIBVEC) $(LIBIO) $(TESTFILES_BIN)
-	for test in $(TESTFILES_BIN) do ./$$test ; done
+	for test in $(TESTFILES_BIN) do LD_LIBRARY_PATH=./lib:$LD_LIBRARY_PATH ./$$test ; done
 
 $(TESTDIR_BIN)/%: $(TESTDIR_SRC)/%.c
 	$(CC) -o $@ $< $(TESTFLAGS) -L$(LIBDIR) -lddvector -lddio -lcriterion -I$(LIBINC)
