@@ -1,47 +1,185 @@
 #ifndef _VECTOR_H_
 #define _VECTOR_H_
-#include <stdlib.h>
+
+#include <stdlib.h> /* for size_t */
+
 #ifndef VECTOR_STEP
 #define VECTOR_STEP 16
 #endif
 
-#ifdef DEBUG
-#define VECTOR_CHECK_ELEMENTS_NULL(x)                                                        \
-    if (vec->elements == NULL) {                                                             \
-        printf("%sError in %s on line %d\n%s", "\033[1;31m", __FILE__, __LINE__, "\033[0m"); \
-        return x;                                                                            \
-    }
-#else
-#define VECTOR_CHECK_ELEMENTS_NULL(x)
-#endif
-
 typedef int (*comparefn)(const void*, const void*);
 typedef void (*freefn)(void*);
-typedef void (*printfn)(const void*);
+typedef void (*dofn)(void*);
+
+typedef enum {
+    DDV_OK = 0,
+    DDV_ERROR = 1,
+    DDV_ENOMEM = 2,
+    DDV_ERANGE = 3,
+    DDV_EINVAL = 4,
+    DDV_EUNINT = 5,
+} ddv_err;
 
 typedef struct {
     size_t element_size;
     size_t capacity;
     size_t length;
     void* elements;
+    /**
+     * Using err field so I don't have to overwrite the errno
+     * and possibly break strerrno
+     */
+    ddv_err err;
 } Vector;
 
-// Basic
-int vector_init(Vector* vec, size_t element_size);
-int vector_destroy(Vector* vec, freefn);
-int vector_push(Vector* vec, const void* element);
+/**
+ * Initializes the vector
+ * allocates element_size * VECTOR_STEP of memory
+ *
+ * Error returns:
+ * DDV_ENOMEM if malloc returns NULL
+ * DDV_OK on success
+ */
+ddv_err vector_init(Vector* vec, const size_t element_size);
+
+/**
+ * Destroyes the vector
+ * if provided calls freefn by passing to it pointer to every element of the vector.
+ * Useful when pointers to dynamically allocated memory are stored in the vector.
+ *
+ * Frees the vector->elements and sets all other fields to 0
+ *
+ * Error returns:
+ * DDV_EUNINT if vec or vec->elements are already NULL
+ * DDV_OK on success
+ */
+ddv_err vector_destroy(Vector* vec, freefn element_free);
+
+/**
+ * Adds another element to the end of the vector.
+ * Changes the capacity by +VECTOR_STEP if vector is full
+ * and reallocates memory for elements.
+ *
+ * Error returns:
+ * DDV_EUNINT if vec or vec->elements are NULL
+ * DDV_EINVAL if 'element' is NULL
+ * DDV_ENOMEM if it cannot reallocate more memory
+ * DDV_OK on success
+ */
+ddv_err vector_push(Vector* vec, const void* element);
+
+/**
+ * Returns the pointer to the last element
+ * and decrements the length of the vector.
+ *
+ * Error returns:
+ * NULL on error
+ *
+ * Sets error code:
+ * DDV_EUNINT if vec or vec->elements are NULL
+ */
 void* vector_pop(Vector* vec);
 
-// Advanced
-void* vector_replace(Vector* vec, const size_t index, const void* element, freefn);
-int vector_sort(Vector* vec, comparefn cmpfn);
+/**
+ * Replaces the element at a given index with 'element'.
+ * if provided calls freefn by passing to it pointer to the element at 'index'
+ * before replacing it.
+ *
+ * Error returns:
+ * DDV_EUNINT if vec or vec->elements are NULL
+ * DDV_EINVAL if 'element' is NULL
+ * DDV_ERANGE if 'index' is greater than the vector length
+ * DDV_OK on success
+ */
+ddv_err vector_replace(Vector* vec, const size_t index, const void* element, freefn element_free);
 
-// Utils
-int vector_print(const Vector* vec, printfn);
-void* vector_at(const Vector* vec, const size_t index);
-void* vector_start(const Vector* vec);
-void* vector_end(const Vector* vec);
-size_t vector_capacity(const Vector* vec);
-size_t vector_length(const Vector* vec);
+/**
+ * Sorts the vector using comparefn
+ *
+ * Error returns:
+ * DDV_EUNINT if vec or vec->elements are NULL
+ * DDV_EINVAL if comparefn is NULL
+ * DDV_OK on success
+ */
+ddv_err vector_sort(Vector* vec, comparefn cmpfn);
+
+/**
+ * Calls the dofn for each element in the vector
+ * passing to it the pointer to the element
+ *
+ * Error returns:
+ * DDV_EUNINT if vec or vec->elements are NULL
+ * DDV_EINVAL if 'element_do' is NULL
+ * DDV_OK on success
+ */
+ddv_err vector_foreach(Vector* vec, dofn element_do);
+
+/**
+ * Returns the pointer to the element at a given index
+ *
+ * Error returns:
+ * NULL on error
+ *
+ * Sets error code:
+ * DDV_EUNINT if vec or vec->elements are NULL
+ * DDV_ERANGE if index is bigger then the capacity
+ */
+void* vector_at(Vector* vec, const size_t index);
+
+/**
+ * Returns the pointer to firts element
+ *
+ * Error returns:
+ * NULL on error
+ *
+ * Sets error code:
+ * DDV_EUNINT if vec or vec->elements are NULL
+ */
+void* vector_start(Vector* vec);
+
+/**
+ * Returns the pointer to one pass the last element
+ *
+ * Error returns:
+ * NULL on error
+ *
+ * Sets error code:
+ * DDV_EUNINT if vec or vec->elements are NULL
+ * DDV_ERANGE if length and capacity are the same, that is, vector is full
+ */
+void* vector_end(Vector* vec);
+
+/**
+ * Returns the capacity of a vector
+ *
+ * Error returns:
+ * 0 on error
+ *
+ * Sets error code:
+ * DDV_EUNINT if vec or vec->elements are NULL
+ */
+size_t vector_capacity(Vector* vec);
+
+/**
+ * Returns the length of a vector
+ *
+ * Error returns:
+ * 0 on error
+ *
+ * Sets error code:
+ * DDV_EUNINT if vec or vec->elements are NULL
+ */
+size_t vector_length(Vector* vec);
+
+/**
+ * Returns the current set error code
+ *
+ * Error returns:
+ * NULL on error
+ *
+ * Sets error code:
+ * DDV_EUNINT if vec or vec->elements are NULL
+ */
+ddv_err vector_err(Vector* vec);
 
 #endif

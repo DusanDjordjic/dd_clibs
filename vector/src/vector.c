@@ -1,25 +1,28 @@
 #include "vector.h"
-#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-int vector_init(Vector* vec, const size_t element_size)
+ddv_err vector_init(Vector* vec, const size_t element_size)
 {
     vec->element_size = element_size;
     vec->capacity = VECTOR_STEP;
     vec->length = 0;
+    vec->err = DDV_OK;
+
     vec->elements = malloc(vec->capacity * element_size);
     if (vec->elements == NULL) {
-        return 1;
+        return DDV_ENOMEM;
     }
 
     return 0;
 }
 
-int vector_destroy(Vector* vec, freefn element_free)
+ddv_err vector_destroy(Vector* vec, freefn element_free)
 {
-    VECTOR_CHECK_ELEMENTS_NULL(1);
+    if (vec == NULL || vec->elements == NULL) {
+        return DDV_EUNINT;
+    }
 
     if (element_free != NULL) {
         for (size_t i = 0; i < vec->length; i++) {
@@ -32,22 +35,26 @@ int vector_destroy(Vector* vec, freefn element_free)
     vec->capacity = 0;
     vec->length = 0;
     vec->element_size = 0;
+    vec->err = DDV_OK;
 
-    return 0;
+    return DDV_OK;
 }
 
-int vector_push(Vector* vec, const void* element)
+ddv_err vector_push(Vector* vec, const void* element)
 {
-    VECTOR_CHECK_ELEMENTS_NULL(1);
+    if (vec == NULL || vec->elements == NULL) {
+        return DDV_EUNINT;
+    }
+
     if (element == NULL) {
-        return 2;
+        return DDV_EINVAL;
     }
 
     if (vec->length == vec->capacity) {
         vec->capacity += VECTOR_STEP;
         void* new_elements = realloc(vec->elements, vec->capacity * vec->element_size);
         if (new_elements == NULL) {
-            return 3;
+            return DDV_ENOMEM;
         }
         vec->elements = new_elements;
     }
@@ -55,47 +62,37 @@ int vector_push(Vector* vec, const void* element)
     memcpy(vector_end(vec), element, vec->element_size);
     vec->length += 1;
 
-    return 0;
+    return DDV_OK;
 }
 
 void* vector_pop(Vector* vec)
 {
-    // TODO: Better error codes
-    VECTOR_CHECK_ELEMENTS_NULL(NULL);
+    if (vec == NULL || vec->elements == NULL) {
+        vec->err = DDV_EUNINT;
+        return NULL;
+    }
 
     vec->length -= 1;
     return vector_end(vec);
 }
 
-void* vector_replace(Vector* vec, const size_t index, const void* element, freefn element_free)
+ddv_err vector_replace(Vector* vec, const size_t index, const void* element, freefn element_free)
 {
-    // TODO: Better error codes
-    VECTOR_CHECK_ELEMENTS_NULL(NULL);
-    if (element == NULL) {
-        return NULL;
-    }
-
-    // Index out of bounds
-    if (vec->capacity <= index) {
-        return NULL;
-    }
-
     void* el = vector_at(vec, index);
-
-    // There is no element at given index
-    // So we'll just insert it
-
-    if (vec->length >= index) {
-        memcpy(el, element, vec->element_size);
-        return el;
+    if (el == NULL) {
+        // Returns DDV_UNINIT | DDV_ERANGE
+        return vec->err;
     }
 
-    // If element_free func is provided use it to
-    // free existing element at 'index'
+    if (element == NULL) {
+        return DDV_EINVAL;
+    }
+
     if (element_free != NULL) {
         element_free(el);
     }
 
     memcpy(el, element, vec->element_size);
-    return el;
+
+    return DDV_OK;
 }

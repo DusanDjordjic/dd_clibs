@@ -43,13 +43,19 @@ static void quick_sort(void* elements, int element_size, int low_index, int high
     }
 }
 
-int vector_sort(Vector* vec, comparefn cmpfn)
+ddv_err vector_sort(Vector* vec, comparefn cmpfn)
 {
-    VECTOR_CHECK_ELEMENTS_NULL(1);
+    if (vec == NULL || vec->elements == NULL) {
+        return DDV_EUNINT;
+    }
+
+    if (cmpfn == NULL) {
+        return DDV_EINVAL;
+    }
 
     int high_index = vector_length(vec) - 1;
     int low_index = 0;
     quick_sort(vec->elements, vec->element_size, low_index, high_index, cmpfn);
 
-    return 0;
+    return DDV_OK;
 }

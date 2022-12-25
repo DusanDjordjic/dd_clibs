@@ -1,51 +1,74 @@
 #include "vector.h"
 #include <stdlib.h>
 
-void* vector_end(const Vector* vec)
+void* vector_end(Vector* vec)
 {
-    VECTOR_CHECK_ELEMENTS_NULL(NULL);
     return vector_at(vec, vec->length);
 }
 
-void* vector_start(const Vector* vec)
+void* vector_start(Vector* vec)
 {
-    VECTOR_CHECK_ELEMENTS_NULL(NULL);
-    return vec->elements;
+    return vector_at(vec, 0);
 }
 
-void* vector_at(const Vector* vec, const size_t index)
+void* vector_at(Vector* vec, const size_t index)
 {
-    VECTOR_CHECK_ELEMENTS_NULL(NULL);
+    if (vec == NULL || vec->elements == NULL) {
+        vec->err = DDV_EUNINT;
+        return 0;
+    }
 
-#ifdef DEBUG
-    if (index >= vec->length)
+    if (index > vec->capacity) {
+        vec->err = DDV_ERANGE;
         return NULL;
-#endif
+    }
 
     return (void*)((char*)vec->elements + vec->element_size * index);
 }
 
-size_t vector_length(const Vector* vec)
+size_t vector_length(Vector* vec)
 {
+    if (vec == NULL || vec->elements == NULL) {
+        vec->err = DDV_EUNINT;
+        return 0;
+    }
+
     return vec->length;
 }
 
-size_t vector_capacity(const Vector* vec)
+size_t vector_capacity(Vector* vec)
 {
+    if (vec == NULL || vec->elements == NULL) {
+        vec->err = DDV_EUNINT;
+        return 0;
+    }
+
     return vec->capacity;
 }
 
-int vector_print(const Vector* vec, printfn element_print)
+ddv_err vector_err(Vector* vec)
 {
-    VECTOR_CHECK_ELEMENTS_NULL(1);
+    if (vec == NULL || vec->elements == NULL) {
+        vec->err = DDV_EUNINT;
+        return 0;
+    }
 
-    if (element_print == NULL) {
-        return 2;
+    return vec->err;
+}
+
+ddv_err vector_foreach(Vector* vec, dofn element_do)
+{
+    if (vec == NULL || vec->elements == NULL) {
+        return DDV_EUNINT;
+    }
+
+    if (element_do == NULL) {
+        return DDV_EINVAL;
     }
 
     for (size_t i = 0; i < vec->length; i++) {
-        element_print(vector_at(vec, i));
+        element_do(vector_at(vec, i));
     }
 
-    return 0;
+    return DDV_OK;
 }
