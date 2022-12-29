@@ -111,8 +111,8 @@ void* vector_find(Vector* vec, findfn element_find);
 /**
  * Finds all elements using provided findfn by passing each element of a vector to it.
  * When findfn returns 0 element is found.
- * Each element is added to the *results vector.
- * 'results' will at the end contain all void* (elements) found by using findfn
+ * Each element's index is added to the *results vector.
+ * '*results' will at the end contain indexes of elements in 'vec' found by using findfn
  *
  * Error returns:
  * DDV_EUNINT if vec or vec->elements are NULL

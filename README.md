@@ -24,9 +24,10 @@ Every library is in it's own folder. They are build individualy and used individ
 ## Todos 
 - [X] *all* : add dynamic library build support.
 - [ ] *all* : add testing library and make tests.
+- [ ] *all* : create more examples
 - [X] *vector-c* : add *get* function that gets an item at some index.
 - [X] *vector-c* : add *replace* function that replaces as item at some index.
-- [ ] *vector-c* : add better error codes to some functions or use errno
+- [X] *vector-c* : add better error codes to some functions or use errno
 - [X] *vector-c* : vector can now hold only pointers. Make it so it can hold any type by using memcpy
 - [ ] *vector-c* : add *shift* and *unshift* functions.
 - [ ] *io-c* : add functions for writing.

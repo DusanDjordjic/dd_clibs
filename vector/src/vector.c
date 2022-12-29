@@ -144,14 +144,13 @@ ddv_err vector_find_all(Vector* vec, findfn element_find, Vector** results)
     }
 
     *results = malloc(sizeof(Vector));
-    vector_init(*results, sizeof(void*));
-    void* element;
+    vector_init(*results, sizeof(size_t));
 
+    void* element;
     for (size_t i = 0; i < vec->length; i++) {
         element = vector_at(vec, i);
-
         if (element_find(element) == 0) {
-            vector_push(*results, &element);
+            vector_push(*results, &i);
         }
     }
 
