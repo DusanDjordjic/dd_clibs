@@ -16,6 +16,30 @@ int int_cmp(const void* p1, const void* p2)
     return n2 - n1;
 }
 
+int int_find_1(const void* p1)
+{
+    const int n = *(int*)p1;
+    return n - 1;
+}
+
+int int_find_2(const void* p1)
+{
+    const int n = *(int*)p1;
+    return n - 2;
+}
+
+int int_find_3(const void* p1)
+{
+    const int n = *(int*)p1;
+    return n - 3;
+}
+
+int int_find_11(const void* p1)
+{
+    const int n = *(int*)p1;
+    return n - 11;
+}
+
 Test(vector, init)
 {
     Vector vec;
@@ -35,7 +59,7 @@ Test(vector, destroy)
     unsigned int n = sizeof(arr) / sizeof(int);
 
     for (unsigned int i = 0; i < n; i++) {
-        printf("%d\n", vector_push(&vec, arr + i));
+        vector_push(&vec, arr + i);
     }
 
     cr_expect(vector_length(&vec) == n, "Vector size should be %d", n);
@@ -53,15 +77,14 @@ Test(vector, push)
 
     int arr[] = { 1, 2, 3 };
 
-    // size_t n = sizeof(arr) / sizeof(int);
+    size_t n = sizeof(arr) / sizeof(int);
 
-    cr_expect(vector_push(&vec, arr) == DDV_OK, "PUSH FAILED");
-    // for (size_t i = 0; i < n; i++) {
-    //     vector_push(&vec, arr + i);
-    // }
+    for (size_t i = 0; i < n; i++) {
+        vector_push(&vec, arr + i);
+    }
 
-    // cr_expect(vector_length(&vec) == n, "Vector size should be %lu", n);
-    // vector_destroy(&vec, NULL);
+    cr_expect(vector_length(&vec) == n, "Vector size should be %lu", n);
+    vector_destroy(&vec, NULL);
 }
 
 Test(vector, pop)
@@ -148,4 +171,74 @@ Test(vector, sort)
         int n = *(int*)vector_at(&vec, i);
         cr_expect(n == arr_sorted[i], "Expected %d to be %d", n, arr_sorted[i]);
     }
+
+    vector_destroy(&vec, NULL);
+}
+
+Test(vector, find)
+{
+    Vector vec;
+    vector_init(&vec, sizeof(int));
+
+    int arr[] = { 3, 8, 1, 9, 9, 3, 7, 4, 8, 7, 1, 6, 5, 4, 2, 9 };
+
+    size_t n = sizeof(arr) / sizeof(int);
+
+    for (size_t i = 0; i < n; i++) {
+        vector_push(&vec, arr + i);
+    }
+
+    void* fa = vector_find(&vec, int_find_1);
+    cr_expect(fa != NULL, "FA to not be NULL");
+
+    void* fb = vector_at(&vec, 2);
+    cr_expect(fb != NULL, "FB to not be NULL");
+
+    int a = *(int*)fa;
+    int b = *(int*)fb;
+
+    cr_expect(a == b, "Expected %d == %d", a, b);
+
+    void* fc = vector_find(&vec, int_find_11);
+    cr_expect(fc == NULL, "FC be NULL");
+
+    vector_destroy(&vec, NULL);
+}
+
+Test(vector, find_all)
+{
+    Vector vec;
+    vector_init(&vec, sizeof(int));
+
+    int arr[] = { 3, 8, 1, 9, 1, 3, 7, 4, 8, 7, 1, 6, 5, 4, 1, 9 };
+
+    size_t n = sizeof(arr) / sizeof(int);
+
+    for (size_t i = 0; i < n; i++) {
+        vector_push(&vec, arr + i);
+    }
+
+    Vector* results;
+    Vector* results2;
+
+    vector_find_all(&vec, int_find_1, &results);
+    vector_find_all(&vec, int_find_3, &results2);
+
+    cr_expect(vector_length(results) == 4, "To find 4 '1s'");
+    cr_expect(vector_length(results2) == 2, "To find 2 '3s'");
+
+    for (size_t i = 0; i < vector_length(results); i++) {
+        printf("%d\n", **(int**)vector_at(results, i));
+    }
+
+    for (size_t i = 0; i < vector_length(results2); i++) {
+        printf("%d\n", **(int**)vector_at(results2, i));
+    }
+
+    vector_destroy(&vec, NULL);
+    vector_destroy(results, NULL);
+    vector_destroy(results2, NULL);
+
+    free(results);
+    free(results2);
 }

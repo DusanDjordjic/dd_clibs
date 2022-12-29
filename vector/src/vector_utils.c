@@ -23,6 +23,7 @@ void* vector_at(Vector* vec, const size_t index)
         return NULL;
     }
 
+    vec->err = DDV_OK;
     return (void*)((char*)vec->elements + vec->element_size * index);
 }
 
@@ -33,6 +34,7 @@ size_t vector_length(Vector* vec)
         return 0;
     }
 
+    vec->err = DDV_OK;
     return vec->length;
 }
 
@@ -43,6 +45,7 @@ size_t vector_capacity(Vector* vec)
         return 0;
     }
 
+    vec->err = DDV_OK;
     return vec->capacity;
 }
 
@@ -59,10 +62,12 @@ ddv_err vector_err(Vector* vec)
 ddv_err vector_foreach(Vector* vec, dofn element_do)
 {
     if (vec == NULL || vec->elements == NULL) {
+        vec->err = DDV_EUNINT;
         return DDV_EUNINT;
     }
 
     if (element_do == NULL) {
+        vec->err = DDV_EINVAL;
         return DDV_EINVAL;
     }
 
@@ -70,5 +75,6 @@ ddv_err vector_foreach(Vector* vec, dofn element_do)
         element_do(vector_at(vec, i));
     }
 
+    vec->err = DDV_OK;
     return DDV_OK;
 }

@@ -8,6 +8,7 @@
 #endif
 
 typedef int (*comparefn)(const void*, const void*);
+typedef int (*findfn)(const void*);
 typedef void (*freefn)(void*);
 typedef void (*dofn)(void*);
 
@@ -92,6 +93,36 @@ void* vector_pop(Vector* vec);
  * DDV_OK on success
  */
 ddv_err vector_replace(Vector* vec, const size_t index, const void* element, freefn element_free);
+
+/**
+ * Finds the element using provided findfn by passing each element of a vector to it.
+ * When findfn returns 0 element is found.
+ *
+ * Error returns:
+ * NULL on error
+ *
+ * Sets error code:
+ * DDV_EUNINT if vec or vec->elements are NULL
+ * DDV_EINVAL if 'findfn' is NULL
+ * DDV_OK on success
+ */
+void* vector_find(Vector* vec, findfn element_find);
+
+/**
+ * Finds all elements using provided findfn by passing each element of a vector to it.
+ * When findfn returns 0 element is found.
+ * Each element is added to the *results vector.
+ * 'results' will at the end contain all void* (elements) found by using findfn
+ *
+ * Error returns:
+ * DDV_EUNINT if vec or vec->elements are NULL
+ * DDV_EINVAL if 'findfn' is NULL or 'results' is NULL
+ * DDV_OK on success
+ *
+ * Note:
+ * 'results' is dynamically allocated so the caller should free it after.
+ */
+ddv_err vector_find_all(Vector* vec, findfn element_find, Vector** results);
 
 /**
  * Sorts the vector using comparefn
