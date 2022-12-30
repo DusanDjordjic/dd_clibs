@@ -49,6 +49,17 @@ size_t vector_capacity(Vector* vec)
     return vec->capacity;
 }
 
+size_t vector_element_size(Vector* vec)
+{
+    if (vec == NULL || vec->elements == NULL) {
+        vec->err = DDV_EUNINT;
+        return 0;
+    }
+
+    vec->err = DDV_OK;
+    return vec->element_size;
+}
+
 ddv_err vector_err(Vector* vec)
 {
     if (vec == NULL || vec->elements == NULL) {

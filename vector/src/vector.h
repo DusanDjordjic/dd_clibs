@@ -146,6 +146,27 @@ ddv_err vector_sort(Vector* vec, comparefn cmpfn);
 ddv_err vector_foreach(Vector* vec, dofn element_do);
 
 /**
+ * Clopied the fields and elements from src to dest
+ *
+ * Error returns:
+ * DDV_EUNINT if 'dest' or 'src' are NULL
+ * DDV_ENOMEM if allocation failes
+ * DDV_OK on success
+ */
+ddv_err vector_copy(Vector* dest, const Vector* src);
+
+/**
+ * Allocates new vector and copies the fields and elements from src.
+ * Address of newly allocated vector is stored in *dest.
+ *
+ * Error returns:
+ * DDV_EUNINT if 'dest' or 'src' are NULL
+ * DDV_ENOMEM if allocation failes
+ * DDV_OK on success
+ */
+ddv_err vector_clone(Vector** dest, const Vector* src);
+
+/**
  * Returns the pointer to the element at a given index
  *
  * Error returns:
@@ -201,6 +222,17 @@ size_t vector_capacity(Vector* vec);
  * DDV_EUNINT if vec or vec->elements are NULL
  */
 size_t vector_length(Vector* vec);
+
+/**
+ * Returns the element_size
+ *
+ * Error returns:
+ * 0 on error
+ *
+ * Sets error code:
+ * DDV_EUNINT if vec or vec->elements are NULL
+ */
+size_t vector_element_size(Vector* vec);
 
 /**
  * Returns the current set error code

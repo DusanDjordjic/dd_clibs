@@ -157,3 +157,38 @@ ddv_err vector_find_all(Vector* vec, findfn element_find, Vector** results)
     vec->err = DDV_OK;
     return DDV_OK;
 }
+
+ddv_err vector_copy(Vector* dest, const Vector* src)
+{
+    if (dest == NULL || src == NULL || src->elements == NULL) {
+        return DDV_EUNINT;
+    }
+
+    dest->length = src->length;
+    dest->capacity = src->capacity;
+    dest->element_size = src->element_size;
+    dest->err = src->err;
+    dest->elements = malloc(dest->element_size * dest->capacity);
+
+    if (dest->elements == NULL) {
+        return DDV_ENOMEM;
+    }
+
+    memcpy(dest->elements, src->elements, dest->element_size * dest->capacity);
+
+    return DDV_OK;
+}
+
+ddv_err vector_clone(Vector** dest, const Vector* src)
+{
+    if (dest == NULL || src == NULL || src->elements == NULL) {
+        return DDV_EUNINT;
+    }
+
+    *dest = malloc(sizeof(Vector));
+    if (*dest == NULL) {
+        return DDV_ENOMEM;
+    }
+
+    return vector_copy(*dest, src);
+}

@@ -227,18 +227,75 @@ Test(vector, find_all)
     cr_expect(vector_length(results) == 4, "To find 4 '1s'");
     cr_expect(vector_length(results2) == 2, "To find 2 '3s'");
 
-    for (size_t i = 0; i < vector_length(results); i++) {
-        printf("%d\n", **(int**)vector_at(results, i));
-    }
-
-    for (size_t i = 0; i < vector_length(results2); i++) {
-        printf("%d\n", **(int**)vector_at(results2, i));
-    }
-
     vector_destroy(&vec, NULL);
     vector_destroy(results, NULL);
     vector_destroy(results2, NULL);
 
     free(results);
     free(results2);
+}
+
+Test(vector, copy)
+{
+    Vector vec;
+    vector_init(&vec, sizeof(int));
+
+    int arr[] = { 3, 8, 1, 9, 1, 3, 7, 4, 8, 7, 1, 6, 5, 4, 1, 9, 10, 1, 3, 6, 8, 9 };
+
+    size_t n = sizeof(arr) / sizeof(int);
+
+    for (size_t i = 0; i < n; i++) {
+        vector_push(&vec, arr + i);
+    }
+
+    Vector clone;
+
+    cr_expect(DDV_OK == vector_copy(&clone, &vec), "Expect vector_copy to work");
+
+    cr_expect(vector_length(&clone) == vector_length(&vec), "Expect lengths to be equal");
+    cr_expect(vector_capacity(&clone) == vector_capacity(&vec), "Expect capacities to be equal");
+    cr_expect(vector_element_size(&clone) == vector_element_size(&vec), "Expect element sizes to be equal");
+    cr_expect(vector_err(&clone) == vector_err(&vec), "Expect error codes to be equal");
+
+    for (size_t i = 0; i < vector_length(&vec); i++) {
+        int n1 = *(int*)vector_at(&vec, i);
+        int n2 = *(int*)vector_at(&clone, i);
+        cr_expect(n1 == n2, "Expect elemets to be copied correctly %d %d", n1, n2);
+    }
+
+    vector_destroy(&vec, NULL);
+    vector_destroy(&clone, NULL);
+}
+
+Test(vector, clone)
+{
+    Vector vec;
+    vector_init(&vec, sizeof(int));
+
+    int arr[] = { 3, 8, 1, 9, 1, 3, 7, 4, 8, 7, 1, 6, 5, 4, 1, 9, 10, 1, 3, 6, 8, 9 };
+
+    size_t n = sizeof(arr) / sizeof(int);
+
+    for (size_t i = 0; i < n; i++) {
+        vector_push(&vec, arr + i);
+    }
+
+    Vector* clone;
+
+    cr_expect(DDV_OK == vector_clone(&clone, &vec), "Expect vector_copy to work");
+
+    cr_expect(vector_length(clone) == vector_length(&vec), "Expect lengths to be equal");
+    cr_expect(vector_capacity(clone) == vector_capacity(&vec), "Expect capacities to be equal");
+    cr_expect(vector_element_size(clone) == vector_element_size(&vec), "Expect element sizes to be equal");
+    cr_expect(vector_err(clone) == vector_err(&vec), "Expect error codes to be equal");
+
+    for (size_t i = 0; i < vector_length(&vec); i++) {
+        int n1 = *(int*)vector_at(&vec, i);
+        int n2 = *(int*)vector_at(clone, i);
+        cr_expect(n1 == n2, "Expect elemets to be copied correctly %d %d", n1, n2);
+    }
+
+    vector_destroy(&vec, NULL);
+    vector_destroy(clone, NULL);
+    free(clone);
 }

@@ -15,6 +15,8 @@ For more detailed description on what each function does and what error it sets 
 - *vector_find* : Finds the first element that *freefn* returns 0 for and returns a pointer to it.
 - *vector_find_all* : Allocates a new vector that will hold the indexes of found elements in the firts vector. Uses *freefn* to 'find' the elements. Vector\*\* argument will be set to hold the pointer to the allocated vector. Also the function calls `vector_init` with the new allocated vector so you shouldn't
 - *vector_sort* : Sorts the vector by some condition that is determined by *comparefn* passed to it.
+- *vector_copy* : Clopis all the fields and elements form src to dest.
+- *vector_clone* : Allocates a new vector and copies all the fields and elements from src to it. Address of newly allocated vector is stored in \*dest.
 - *vector_at* : Returns a pointer to the element at given index.
 - *vector_start* : Returns a pointer to the firts element (start of the array).
 - *vector_end* : Returns a pointer to the one pass the last element.
